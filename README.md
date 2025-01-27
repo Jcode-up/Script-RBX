@@ -1,8 +1,7 @@
--- Configuração inicial do jogador
+-- Configuração inicial
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local workspace = game.Workspace
-local httpService = game:GetService("HttpService")
 local tweenService = game:GetService("TweenService")
 local mouse = player:GetMouse()
 
@@ -75,7 +74,7 @@ local function startAutoFarm()
     stopActive = false
     while autoFarmActive do
         wait(1)
-        -- A lógica para buscar inimigos e atacar pode ser customizada aqui
+        -- Lógica de auto-farm: buscar inimigos e atacar
         for _, enemy in pairs(workspace.Enemies:GetChildren()) do
             if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
                 -- Apontar para o inimigo e dar dano
