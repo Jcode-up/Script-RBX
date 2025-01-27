@@ -17,7 +17,6 @@ end
 function CheckQuest()
     local Mon, LevelQuest, NameQuest, NameMon, CFrameQuest, CFrameMon
 
-    nível do jogador
     if World1 then
         if MyLevel >= 1 and MyLevel <= 9 then
             Mon = "Bandit"
