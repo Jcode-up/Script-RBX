@@ -11,10 +11,10 @@ screenGui.Parent = player.PlayerGui
 
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 350, 0, 400)
-frame.Position = UDim2.new(0, 50, 0, 50)
+frame.Position = UDim2.new(0.5, -175, 0.5, -200)  -- Colocando o menu no centro da tela
 frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 frame.BorderSizePixel = 0
-frame.AnchorPoint = Vector2.new(0, 0)
+frame.AnchorPoint = Vector2.new(0.5, 0.5)  -- Centralizando o frame
 frame.Parent = screenGui
 
 local corner = Instance.new("UICorner")
@@ -132,3 +132,6 @@ end)
 player.CharacterAdded:Connect(function()
     stopAll()
 end)
+
+-- Garantindo que o menu apareça
+screenGui.Enabled = true
