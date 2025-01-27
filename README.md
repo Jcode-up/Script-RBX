@@ -1,111 +1,84 @@
--- Configuração inicial do script
+-- Configuração inicial do jogador
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local workspace = game.Workspace
 local httpService = game:GetService("HttpService")
+local tweenService = game:GetService("TweenService")
+local mouse = player:GetMouse()
 
--- Criando o menu GUI
+-- Criando a interface GUI
 local screenGui = Instance.new("ScreenGui")
 screenGui.Parent = player.PlayerGui
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 300, 0, 200)
-frame.Position = UDim2.new(0, 20, 0, 20)
-frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-frame.BackgroundTransparency = 0.7
+frame.Size = UDim2.new(0, 350, 0, 400)
+frame.Position = UDim2.new(0, 50, 0, 50)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 frame.BorderSizePixel = 0
 frame.AnchorPoint = Vector2.new(0, 0)
 frame.Parent = screenGui
 
--- Adicionando um canto arredondado
 local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 20)
+corner.CornerRadius = UDim.new(0, 12)
 corner.Parent = frame
 
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(1, 0, 0, 40)
-titleLabel.Text = "Menu de Auto-Farm"
+titleLabel.Text = "Auto-Farm Menu"
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.TextSize = 24
-titleLabel.Font = Enum.Font.GothamBold
+titleLabel.TextStrokeTransparency = 0.8
 titleLabel.BackgroundTransparency = 1
+titleLabel.Font = Enum.Font.GothamBold
 titleLabel.Parent = frame
 
--- Botões para ativar as opções
-local autoFarmButton = Instance.new("TextButton")
-autoFarmButton.Size = UDim2.new(0.8, 0, 0, 40)
-autoFarmButton.Position = UDim2.new(0.1, 0, 0.2, 0)
-autoFarmButton.Text = "Ativar Auto-Farm"
-autoFarmButton.BackgroundColor3 = Color3.fromRGB(0, 204, 102)
-autoFarmButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-autoFarmButton.TextSize = 18
-autoFarmButton.Font = Enum.Font.Gotham
-autoFarmButton.BorderRadius = UDim.new(0, 12)
-autoFarmButton.Parent = frame
+-- Função para criar botões dinâmicos
+local function createButton(name, position, color, text, callback)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0.8, 0, 0, 40)
+    button.Position = position
+    button.Text = text
+    button.BackgroundColor3 = color
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.TextSize = 18
+    button.Font = Enum.Font.Gotham
+    button.BorderRadius = UDim.new(0, 12)
+    button.Parent = frame
 
-local farmBonesButton = Instance.new("TextButton")
-farmBonesButton.Size = UDim2.new(0.8, 0, 0, 40)
-farmBonesButton.Position = UDim2.new(0.1, 0, 0.4, 0)
-farmBonesButton.Text = "Farmar Ossos"
-farmBonesButton.BackgroundColor3 = Color3.fromRGB(0, 153, 255)
-farmBonesButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-farmBonesButton.TextSize = 18
-farmBonesButton.Font = Enum.Font.Gotham
-farmBonesButton.BorderRadius = UDim.new(0, 12)
-farmBonesButton.Parent = frame
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 12)
+    corner.Parent = button
 
-local stopButton = Instance.new("TextButton")
-stopButton.Size = UDim2.new(0.8, 0, 0, 40)
-stopButton.Position = UDim2.new(0.1, 0, 0.6, 0)
-stopButton.Text = "Parar"
-stopButton.BackgroundColor3 = Color3.fromRGB(255, 77, 77)
-stopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-stopButton.TextSize = 18
-stopButton.Font = Enum.Font.Gotham
-stopButton.BorderRadius = UDim.new(0, 12)
-stopButton.Parent = frame
-
--- Animações para os botões
-local function animaBotao(button)
-    local tweenService = game:GetService("TweenService")
-    local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-    
-    local goal = {}
-    goal.BackgroundColor3 = button.BackgroundColor3:lerp(Color3.fromRGB(255, 255, 255), 0.1) -- Efeito de brilho
-    local tween = tweenService:Create(button, tweenInfo, goal)
-    
-    tween:Play()
-    tween.Completed:Connect(function()
-        goal.BackgroundColor3 = button.BackgroundColor3:lerp(Color3.fromRGB(255, 255, 255), 0)
+    -- Animação de botão ao passar o mouse
+    button.MouseEnter:Connect(function()
+        local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
+        local goal = {BackgroundColor3 = button.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.1)}
+        local tween = tweenService:Create(button, tweenInfo, goal)
         tween:Play()
     end)
+
+    -- Definindo a ação do botão
+    button.MouseButton1Click:Connect(callback)
+    
+    return button
 end
 
-autoFarmButton.MouseEnter:Connect(function()
-    animaBotao(autoFarmButton)
-end)
-farmBonesButton.MouseEnter:Connect(function()
-    animaBotao(farmBonesButton)
-end)
-stopButton.MouseEnter:Connect(function()
-    animaBotao(stopButton)
-end)
-
--- Variáveis para controlar o estado
+-- Funções de Auto-Farm, Coleta e Parada
 local autoFarmActive = false
 local farmBonesActive = false
 local stopActive = false
 
--- Função para ativar Auto-Farm
-local function ativarAutoFarm()
+-- Função para ativar o Auto-Farm
+local function startAutoFarm()
     autoFarmActive = true
     farmBonesActive = false
     stopActive = false
     while autoFarmActive do
         wait(1)
-        -- Aqui você pode modificar para atacar inimigos específicos ou coletar itens
+        -- A lógica para buscar inimigos e atacar pode ser customizada aqui
         for _, enemy in pairs(workspace.Enemies:GetChildren()) do
             if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
+                -- Apontar para o inimigo e dar dano
                 character.HumanoidRootPart.CFrame = enemy.HumanoidRootPart.CFrame + Vector3.new(0, 5, 0)
                 wait(0.2)
                 enemy.Humanoid.Health = enemy.Humanoid.Health - 10
@@ -115,12 +88,13 @@ local function ativarAutoFarm()
 end
 
 -- Função para farmar ossos
-local function farmarOssos()
+local function farmBones()
     farmBonesActive = true
     autoFarmActive = false
     stopActive = false
     while farmBonesActive do
         wait(1)
+        -- Lógica para pegar ossos no jogo
         for _, item in pairs(workspace.Items:GetChildren()) do
             if item.Name == "Bone" and (item.Position - character.HumanoidRootPart.Position).Magnitude < 10 then
                 character.HumanoidRootPart.CFrame = CFrame.new(item.Position)
@@ -131,33 +105,31 @@ local function farmarOssos()
     end
 end
 
--- Função para parar todos os processos
-local function parar()
+-- Função para parar todas as atividades
+local function stopAll()
     autoFarmActive = false
     farmBonesActive = false
     stopActive = true
 end
 
--- Conectar os botões aos eventos
-autoFarmButton.MouseButton1Click:Connect(function()
+-- Criando os botões do menu
+createButton("Ativar Auto-Farm", UDim2.new(0.1, 0, 0.2, 0), Color3.fromRGB(0, 204, 102), "Ativar Auto-Farm", function()
     if not autoFarmActive then
-        ativarAutoFarm()
+        startAutoFarm()
     end
 end)
 
-farmBonesButton.MouseButton1Click:Connect(function()
+createButton("Farmar Ossos", UDim2.new(0.1, 0, 0.35, 0), Color3.fromRGB(0, 153, 255), "Farmar Ossos", function()
     if not farmBonesActive then
-        farmarOssos()
+        farmBones()
     end
 end)
 
-stopButton.MouseButton1Click:Connect(function()
-    parar()
+createButton("Parar Tudo", UDim2.new(0.1, 0, 0.5, 0), Color3.fromRGB(255, 77, 77), "Parar Tudo", function()
+    stopAll()
 end)
 
--- Parar tudo se o jogador sair
+-- Função para quando o jogador reiniciar
 player.CharacterAdded:Connect(function()
-    autoFarmActive = false
-    farmBonesActive = false
-    stopActive = true
+    stopAll()
 end)
