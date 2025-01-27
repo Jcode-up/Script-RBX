@@ -5,8 +5,8 @@ screenGui.Parent = player.PlayerGui
 
 -- Criando o Frame principal para o menu
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 350, 0, 400)
-frame.Position = UDim2.new(0.5, -175, 0.5, -200)  -- Colocando o menu no centro da tela
+frame.Size = UDim2.new(0, 350, 0, 400)  -- Tamanho fixo
+frame.Position = UDim2.new(0.5, -175, 0.5, -200)  -- Centralizando o menu
 frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 frame.BorderSizePixel = 0
 frame.AnchorPoint = Vector2.new(0.5, 0.5)  -- Centralizando o frame
